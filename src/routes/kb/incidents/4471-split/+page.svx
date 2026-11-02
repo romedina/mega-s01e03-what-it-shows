@@ -1,0 +1,57 @@
+---
+layout: runbook
+title: '#4471 · one ticket, three problems'
+owner: romedina
+status: open
+reviewed: 2026-11-02
+signature: 'v1.eyJzdWIiOiI2NjI4IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTM2NjEwODksImV4cCI6MTc5Mzc0NzQ4OX0.shWvcQVCQTKVc2rmEt8_mD3UP54F1ajg0N6sEzITFQw'
+---
+
+<script>
+  import SplitTable from '#lib/kb/SplitTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+
+  const repo = 'https://github.com/romedina/mega-s01e03-what-it-shows/issues';
+  const issues = { parser: `${repo}/1`, hint: `${repo}/2`, shift: `${repo}/3` };
+</script>
+
+[#4471](/kb/incidents/4471) is marked **known**: one issue, one fix queued. Read the reports, not
+their subject lines, and it holds three problems. The queued parser fix closes only one of them.
+
+<Callout kind="warn">
+Not one bug. Three problems, three tickets. Fixing the parser leaves the other two open.
+</Callout>
+
+## What the reports show
+
+<SplitTable ticket={4471} {issues} />
+
+- **`parser`**: the shared parser reads every date month first. Day-first tenants get day and
+  month swapped: "7 April went out on 4 July". This is the fix that is queued.
+- **`hint`**: the booking-v3 form prints `MM/DD/YYYY` under its date field, and reads the
+  date the tenant's way, day first. People type what the hint tells them, so form bookings at
+  booking-v3 tenants swap even after the parser is fixed. A different bug, in the form.
+- **`shift`**: the date moves by one day, not by a swap. "Tuesday 12 May, calendar says Monday 11
+  May." "Client in Lisbon got Tuesday, client in Toronto got Monday." Time zones, not date
+  order. The desk saw these (`desk-notes.json`) and still filed them under `parser`.
+
+## Why it merged
+
+The desk merges on subject line alone ([decision 0001](/kb/decisions/0001-dedupe-by-subject)).
+Twelve subject lines ("Wrong day on the invite", "Date is wrong", …) cover all three problems,
+so every report landed in #4471. The intake tag did not help either: it guesses from the
+reporter's browser, and the table shows how often it disagrees with the tenant.
+
+## Since April
+
+<QueueTimeline ticket={4471} />
+
+## What changes
+
+- #4471 stays for `parser`. `hint` and `shift` are tracked in their own tickets (table above).
+- Do not close the `hint` or `shift` tickets when the parser fix ships.
+- Count a report once: the export repeats some reports by id.
+
+<RenderStamp {signature} />
